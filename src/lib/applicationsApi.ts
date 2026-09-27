@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { requireSupabase } from './supabaseClient';
 import type { Application, ApplicationInput, Status } from '@/types/application';
 
 function withUpdatedAt(input: Partial<ApplicationInput>): Record<string, unknown> {
@@ -6,7 +6,7 @@ function withUpdatedAt(input: Partial<ApplicationInput>): Record<string, unknown
 }
 
 export async function fetchApplications(): Promise<Application[]> {
-  const { data, error } = await supabase
+  const { data, error } = await requireSupabase()
     .from('applications')
     .select('*')
     .order('updated_at', { ascending: false });
@@ -16,7 +16,7 @@ export async function fetchApplications(): Promise<Application[]> {
 
 export async function createApplication(input: ApplicationInput): Promise<Application> {
   const payload = { ...input, updated_at: new Date().toISOString() };
-  const { data, error } = await supabase
+  const { data, error } = await requireSupabase()
     .from('applications')
     .insert(payload)
     .select()
@@ -29,7 +29,7 @@ export async function updateApplication(
   id: string,
   changes: Partial<ApplicationInput>
 ): Promise<Application> {
-  const { data, error } = await supabase
+  const { data, error } = await requireSupabase()
     .from('applications')
     .update(withUpdatedAt(changes))
     .eq('id', id)
@@ -44,6 +44,6 @@ export async function updateStatus(id: string, status: Status): Promise<Applicat
 }
 
 export async function deleteApplication(id: string): Promise<void> {
-  const { error } = await supabase.from('applications').delete().eq('id', id);
+  const { error } = await requireSupabase().from('applications').delete().eq('id', id);
   if (error) throw error;
 }
